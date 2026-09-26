@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Citizenship Lab — Tin học 9, Bài 4</title>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --bg-card:#ffffff;
+  --ink:#152238;
+  --ink-soft:#5b6b82;
+  --line:#e1e8f2;
+  --blue:#1f6feb;
+  --blue-dark:#134fb0;
+  --cyan:#12b3c9;
+  --green:#1fa971;
+  --amber:#e2a12b;
+  --red:#e2513b;
+  --violet:#7c5cff;
+  --shadow:0 10px 30px rgba(20,40,80,.08);
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Segoe UI",Roboto,"Be Vietnam Pro",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, #e7f0ff 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, #e4fbf7 0%, transparent 40%),
+    var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+}
+#app{max-width:1100px;margin:0 auto;padding:20px 16px 60px;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 4px 20px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--blue-dark);}
+.brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+.mode-pill{font-size:12px;padding:4px 10px;border-radius:999px;font-weight:600;}
+.pill-demo{background:#fff3d6;color:#8a6100;}
+.pill-live{background:#dcfaee;color:#0b7a4f;}
+.pill-wait{background:#ffe9d6;color:#a55600;}
+.teacher-btn{background:none;border:1px solid var(--line);color:var(--ink-soft);padding:6px 12px;border-radius:10px;font-size:12px;cursor:pointer;}
+.teacher-btn:hover{border-color:var(--blue);color:var(--blue);}
+
+.card{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:18px;}
+.screen{display:none;animation:fade .35s ease;}
+.screen.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+h1{font-size:1.5rem;margin:0 0 6px;}
+h2{font-size:1.25rem;margin:0 0 10px;color:var(--blue-dark);}
+h3{font-size:1.05rem;margin:0 0 8px;}
+p{line-height:1.55;color:var(--ink-soft);}
+.tag{display:inline-block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;background:#eaf1ff;color:var(--blue-dark);padding:4px 10px;border-radius:999px;font-weight:700;margin-bottom:10px;}
+
+.progress-wrap{display:flex;align-items:center;gap:10px;margin:14px 0;}
+.progress-track{flex:1;height:8px;border-radius:999px;background:var(--line);overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));width:0%;transition:width .5s ease;}
+.progress-label{font-size:12px;color:var(--ink-soft);white-space:nowrap;}
+
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:12px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;box-shadow:0 6px 18px rgba(31,111,235,.3);}
+.btn-primary:hover{box-shadow:0 8px 22px rgba(31,111,235,.4);}
+.btn-secondary{background:#eef2f8;color:var(--ink);}
+.btn-ghost{background:transparent;color:var(--blue-dark);border:1px solid var(--line);}
+.btn-green{background:linear-gradient(135deg,#28c281,var(--green));color:#fff;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+.row.center{justify-content:center;}
+.row.between{justify-content:space-between;align-items:center;}
+
+select,input[type=text],textarea,input[type=password]{
+  width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;
+  background:#fbfcff;color:var(--ink);
+}
+textarea{resize:vertical;min-height:70px;font-family:inherit;}
+label{font-size:13px;font-weight:700;color:var(--ink-soft);letter-spacing:.03em;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field{margin-bottom:16px;}
+
+.grid{display:grid;gap:14px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
+
+.tile{border:1.5px solid var(--line);border-radius:14px;padding:16px;background:#fafcff;cursor:pointer;transition:.15s;text-align:left;}
+.tile:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,40,80,.08);}
+.tile.selected{border-color:var(--blue);background:#eaf2ff;}
+.tile.correct{border-color:var(--green);background:#e8faf1;}
+.tile.wrong{border-color:var(--red);background:#fdecea;}
+.tile .t-time{font-weight:700;color:var(--blue-dark);font-size:13px;margin-bottom:4px;}
+
+.feedback{border-radius:12px;padding:14px 16px;margin-top:12px;font-size:14px;line-height:1.5;display:none;}
+.feedback.show{display:block;animation:fade .3s ease;}
+.feedback.good{background:#e7faf0;border:1px solid #b7ecd0;color:#0b7a4f;}
+.feedback.think{background:#fff6e5;border:1px solid #ffe1a3;color:#8a6100;}
+
+.case-box{border:1.5px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;background:#fafcff;}
+.case-num{font-size:12px;font-weight:800;color:var(--violet);letter-spacing:.06em;}
+.choice-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+.choice-btn{flex:1;min-width:120px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-weight:700;cursor:pointer;}
+.choice-btn.green{border-color:#b7ecd0;}
+.choice-btn.amber{border-color:#ffe1a3;}
+.choice-btn.red{border-color:#f6c3ba;}
+.choice-btn.picked-green{background:#e7faf0;border-color:var(--green);}
+.choice-btn.picked-amber{background:#fff6e5;border-color:var(--amber);}
+.choice-btn.picked-red{background:#fdecea;border-color:var(--red);}
+
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px;}
+.cat-btn{padding:10px 8px;font-size:13px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-weight:600;text-align:center;}
+.cat-btn.picked{border-color:var(--blue);background:#eaf2ff;}
+.cat-btn.right{border-color:var(--green);background:#e8faf1;}
+.cat-btn.miss{border-color:var(--red);background:#fdecea;}
+
+.balance-wrap{margin:18px 0;}
+.balance-track{position:relative;height:20px;border-radius:999px;background:linear-gradient(90deg,#f6c3ba,#ffe1a3,#b7ecd0);}
+.balance-marker{position:absolute;top:-8px;width:4px;height:36px;background:var(--ink);border-radius:2px;transition:left .4s ease;}
+.balance-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-top:4px;}
+
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,40,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:26px;max-width:420px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25);}
+.pwd-wrap{position:relative;}
+.pwd-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:13px;font-weight:700;}
+
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#152238;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:.3s;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+.badge{display:inline-flex;align-items:center;gap:6px;background:#fff3d6;color:#8a6100;padding:6px 12px;border-radius:999px;font-weight:700;font-size:13px;}
+.xp-tag{background:#eaf2ff;color:var(--blue-dark);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;}
+th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.tab-btn{padding:8px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-weight:700;font-size:13px;}
+.tab-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.stat-card{background:#fafcff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
+.stat-num{font-size:1.6rem;font-weight:800;color:var(--blue-dark);}
+.stat-lbl{font-size:12px;color:var(--ink-soft);}
+
+.mindmap-box{border:1.5px dashed var(--line);border-radius:14px;padding:16px;background:#fafcff;}
+footer.note{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:20px;}
+.small-note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+@media (max-width:640px){.card{padding:18px;}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="top-bar">
+    <div class="brand"><div class="logo">🛡️</div> Digital Citizenship Lab</div>
+    <div class="row" style="align-items:center;gap:10px;">
+      <span id="modePill" class="mode-pill pill-demo">🟡 DEMO MODE</span>
+      <button class="teacher-btn" onclick="openTeacherLogin()">TEACHER MODE</button>
+    </div>
+  </div>
+
+  <!-- WELCOME -->
+  <section id="screen-welcome" class="screen active">
+    <div class="card" style="text-align:center;">
+      <div class="tag">Tin học 9 · Chủ đề 3</div>
+      <h1 style="font-size:1.9rem;">BÀI 4<br>MỘT SỐ VẤN ĐỀ PHÁP LÍ<br>VỀ SỬ DỤNG DỊCH VỤ INTERNET</h1>
+      <p>Giáo viên: <b>Huỳnh Văn Diễn</b> &nbsp;·&nbsp; 2 tiết · 90 phút · Học trong 2 tuần</p>
+    </div>
+
+    <div id="resumeCard" class="card" style="display:none;background:linear-gradient(135deg,#eaf2ff,#e7faf0);">
+      <h3>👋 Chào mừng em quay lại!</h3>
+      <p id="resumeText"></p>
+      <div class="progress-wrap"><div class="progress-track"><div id="resumeFill" class="progress-fill"></div></div><span id="resumeLabel" class="progress-label"></span></div>
+      <button class="btn btn-primary" onclick="continueJourney()">TIẾP TỤC ▶</button>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>Lớp</label>
+        <select id="selClass" onchange="onClassChange()"><option value="">— Chọn lớp —</option></select>
+      </div>
+      <div class="field">
+        <label>Họ và tên</label>
+        <select id="selStudent" disabled><option value="">— Chọn lớp trước —</option></select>
+      </div>
+      <div class="row center">
+        <button id="btnStart" class="btn btn-primary" onclick="startJourney()" disabled>BẮT ĐẦU HÀNH TRÌNH 🚀</button>
+      </div>
+      <p class="small-note" id="rosterNote">Đang tải danh sách học sinh…</p>
+    </div>
+  </section>
+
+  <!-- SHARED LESSON HEADER (shown for part screens) -->
+  <div id="lessonHeader" style="display:none;">
+    <div class="progress-wrap">
+      <div class="progress-track"><div id="mainProgressFill" class="progress-fill"></div></div>
+      <span id="mainProgressLabel" class="progress-label">0%</span>
+      <span class="xp-tag" id="xpTag">XP 0</span>
+    </div>
+  </div>
+
+  <!-- PART 1 -->
+  <section id="screen-part1" class="screen">
+    <div class="card">
+      <div class="tag">Phần 1 · Mặt trái của thế giới số</div>
+      <h2>MỘT NGÀY SỐ CỦA MINH</h2>
+      <p>Nhấn vào từng hoạt động trong ngày của Minh. Điều nào có thể trở thành vấn đề nếu diễn ra <b>quá mức hoặc thiếu kiểm soát</b>?</p>
+      <div id="timelineGrid" class="grid grid-3"></div>
+      <div class="row center" style="margin-top:16px;">
+        <button id="btnToRiskMap" class="btn btn-primary" onclick="showRiskMap()" disabled>MỞ BẢN ĐỒ RỦI RO SỐ 🗺️</button>
+      </div>
+    </div>
+
+    <div id="riskMapCard" class="card" style="display:none;">
+      <h3>🗺️ BẢN ĐỒ RỦI RO SỐ</h3>
+      <p>Chọn nhóm phù hợp cho mỗi tình huống em vừa đánh dấu.</p>
+      <div id="riskItems"></div>
+      <div class="feedback" id="riskFeedback"></div>
+      <div class="row center" style="margin-top:14px;">
+        <button id="btnPart1Next" class="btn btn-primary" onclick="goPart2()" disabled>TIẾP THEO →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 2 -->
+  <section id="screen-part2" class="screen">
+    <div class="card">
+      <div class="tag">Phần 2 · Thử thách cân bằng số</div>
+      <h2>⚖️ DIGITAL BALANCE</h2>
+      <p>Mỗi quyết định của em sẽ làm thanh <b>Cân bằng số</b> thay đổi. Không có lựa chọn nào là "thảm hoạ" — hãy chọn điều em cho là hợp lí.</p>
+      <div class="balance-wrap">
+        <div class="balance-track"><div id="balanceMarker" class="balance-marker" style="left:50%;"></div></div>
+        <div class="balance-labels"><span>Mất cân bằng</span><span>Cân bằng số</span><span>Rất cân bằng</span></div>
+      </div>
+      <div id="balanceCaseBox"></div>
+      <div class="feedback" id="balanceFeedback"></div>
+    </div>
+
+    <div id="balanceReflect" class="card" style="display:none;">
+      <h3>✨ Vận dụng</h3>
+      <p>Em sẽ thay đổi một thói quen số nào trong tuần tới?</p>
+      <textarea id="txtHabit" maxlength="200" placeholder="Viết một câu ngắn..."></textarea>
+      <div class="row center" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="goCheckpoint1()">TIẾP THEO →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKPOINT 1 -->
+  <section id="screen-checkpoint1" class="screen">
+    <div class="card" style="text-align:center;">
+      <h2>🎯 CHECKPOINT — TIẾT 1</h2>
+      <p>Em đã hoàn thành: <b>Mặt trái của công nghệ kĩ thuật số</b> và <b>Cân bằng số</b>.</p>
+    </div>
+    <div class="card">
+      <div id="cpQuizBox"></div>
+    </div>
+    <div class="card" id="cpSaveBox" style="text-align:center;">
+      <button id="btnSaveSession1" class="btn btn-green" onclick="saveSession1()">💾 LƯU TIẾN ĐỘ TIẾT 1</button>
+      <div id="cpSaved" style="display:none;margin-top:14px;">
+        <p style="color:#0b7a4f;font-weight:700;">✅ Đã lưu.</p>
+        <p>Tuần sau em chỉ cần chọn lại tên để tiếp tục. Em có thể đóng website an toàn.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 3 -->
+  <section id="screen-part3" class="screen">
+    <div class="card">
+      <div class="tag">Tiết 2 · Khởi động</div>
+      <h2>⚡ THỬ THÁCH NHỚ NHANH</h2>
+      <div id="warmupBox"></div>
+      <div class="row center" style="margin-top:14px;">
+        <button id="btnWarmupNext" class="btn btn-primary" onclick="goDetective()" style="display:none;">VÀO PHÒNG THÁM TỬ 🕵️</button>
+      </div>
+    </div>
+
+    <div id="detectiveCard" class="card" style="display:none;">
+      <div class="tag">Phần 3 · Thám tử Internet</div>
+      <h2>🕵️ THÁM TỬ INTERNET</h2>
+      <p>Đọc từng CASE và chọn đúng nhóm hành vi.</p>
+      <div id="detectiveCaseBox"></div>
+      <div class="row center" style="margin-top:14px;">
+        <button id="btnPart3Next" class="btn btn-primary" onclick="goPart4()" style="display:none;">TIẾP THEO →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 4 -->
+  <section id="screen-part4" class="screen">
+    <div class="card">
+      <div class="tag">Phần 4 · Digital Judge</div>
+      <h2>⚖️ EM SẼ QUYẾT ĐỊNH THẾ NÀO?</h2>
+      <div id="judgeCaseBox"></div>
+      <div class="row center" style="margin-top:14px;">
+        <button id="btnPart4Next" class="btn btn-primary" onclick="goPart5()" style="display:none;">TIẾP THEO →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 5 -->
+  <section id="screen-part5" class="screen">
+    <div class="card">
+      <div class="tag">Phần 5 · Exit Ticket</div>
+      <h2>📝 EXIT TICKET</h2>
+      <div class="field">
+        <label>A. Điều quan trọng nhất em học được hôm nay là gì?</label>
+        <textarea id="etKnowledge" maxlength="300"></textarea>
+      </div>
+      <div class="field">
+        <label>B. Tình huống kiểm tra</label>
+        <div id="etCoreCheckBox"></div>
+      </div>
+      <div class="field">
+        <label>C. Vận dụng — Có một người bạn chuẩn bị chia sẻ thông tin cá nhân của người khác lên mạng. Em sẽ khuyên bạn ấy điều gì?</label>
+        <textarea id="etApplication" maxlength="300"></textarea>
+      </div>
+      <div class="field">
+        <label>D. Em tự đánh giá mức hiểu bài của mình</label>
+        <div class="grid grid-3" id="etUnderstandingBox"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🧠 E. Sơ đồ tư duy — Sử dụng Internet có trách nhiệm</h3>
+      <div class="grid grid-3">
+        <div>
+          <label>⚠ Tác động tiêu cực</label>
+          <input type="text" class="mm-input" data-branch="neg" maxlength="24">
+          <input type="text" class="mm-input" data-branch="neg" maxlength="24" style="margin-top:6px;">
+          <input type="text" class="mm-input" data-branch="neg" maxlength="24" style="margin-top:6px;">
+        </div>
+        <div>
+          <label>⚖ Hành vi cần tránh</label>
+          <input type="text" class="mm-input" data-branch="bad" maxlength="24">
+          <input type="text" class="mm-input" data-branch="bad" maxlength="24" style="margin-top:6px;">
+          <input type="text" class="mm-input" data-branch="bad" maxlength="24" style="margin-top:6px;">
+        </div>
+        <div>
+          <label>✅ Em sẽ làm gì?</label>
+          <input type="text" class="mm-input" data-branch="do" maxlength="24">
+          <input type="text" class="mm-input" data-branch="do" maxlength="24" style="margin-top:6px;">
+          <input type="text" class="mm-input" data-branch="do" maxlength="24" style="margin-top:6px;">
+        </div>
+      </div>
+      <div style="margin-top:16px;overflow-x:auto;">
+        <div id="mindmapSvgWrap" class="mindmap-box"></div>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label>Điều em vẫn còn thắc mắc hoặc muốn thầy giải thích thêm?</label>
+        <textarea id="etQuestion" maxlength="300"></textarea>
+      </div>
+      <div class="row center">
+        <button class="btn btn-primary" onclick="tryComplete()">HOÀN THÀNH TOÀN BỘ BÀI 🏁</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPLETE -->
+  <section id="screen-complete" class="screen">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:52px;">🛡️</div>
+      <h2>HOÀN THÀNH BÀI HỌC!</h2>
+      <p>Em đã nhận huy hiệu <b>DIGITAL CITIZEN</b>.</p>
+      <p class="xp-tag" id="finalXp" style="font-size:16px;padding:8px 16px;"></p>
+      <div id="syncFinalStatus" class="small-note"></div>
+      <div class="row center" style="margin-top:16px;">
+        <button class="btn btn-secondary" onclick="location.reload()">VỀ MÀN HÌNH CHÍNH</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEACHER DASHBOARD -->
+  <section id="screen-teacher" class="screen">
+    <div class="card">
+      <div class="row between">
+        <h2>📊 Teacher Dashboard</h2>
+        <button class="btn btn-ghost" onclick="exitTeacher()">← Thoát</button>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="overview" onclick="switchTeacherTab('overview')">Tổng quan</button>
+        <button class="tab-btn" data-tab="classes" onclick="switchTeacherTab('classes')">Theo lớp</button>
+        <button class="tab-btn" data-tab="hard" onclick="switchTeacherTab('hard')">Câu hỏi khó</button>
+        <button class="tab-btn" data-tab="exit" onclick="switchTeacherTab('exit')">Exit Ticket</button>
+        <button class="tab-btn" data-tab="mindmap" onclick="switchTeacherTab('mindmap')">Mindmap</button>
+        <button class="tab-btn" data-tab="fast" onclick="switchTeacherTab('fast')">⚠ Fast Finish</button>
+      </div>
+      <div id="teacherTabContent"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FAST FINISH WARNING MODAL -->
+<div id="fastFinishModal" class="modal-bg">
+  <div class="modal">
+    <h3>⚠️ EM ĐANG HOÀN THÀNH BÀI HỌC RẤT NHANH</h3>
+    <p>Thời gian hoạt động của em hiện dưới 10 phút.<br>Hãy dành một chút thời gian kiểm tra lại:</p>
+    <ul style="color:var(--ink-soft);font-size:14px;">
+      <li>Các câu em trả lời nhanh</li>
+      <li>Những câu em đã thử nhiều lần</li>
+      <li>Sơ đồ tư duy Exit Ticket</li>
+    </ul>
+    <div class="row" style="margin-top:14px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="closeFastFinish()">XEM LẠI BÀI</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="forceComplete()">VẪN GỬI BÀI</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER LOGIN MODAL -->
+<div id="teacherLoginModal" class="modal-bg">
+  <div class="modal">
+    <h3>🔐 Teacher Mode</h3>
+    <p>Nhập mã giáo viên để mở Dashboard.</p>
+    <div class="pwd-wrap">
+      <input type="password" id="teacherPwdInput" placeholder="Mã giáo viên">
+      <button class="pwd-toggle" onclick="toggleTeacherPwd()" id="pwdToggleBtn">HIỆN</button>
+    </div>
+    <p id="teacherLoginError" style="color:var(--red);font-size:13px;display:none;">Sai mã giáo viên.</p>
+    <div class="row" style="margin-top:14px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Huỷ</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitTeacherLogin()">Mở Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG — THẦY DÁN GOOGLE APPS SCRIPT /EXEC VÀO DÒNG DƯỚI
+   ============================================================ */
+const CONFIG = {
+  // ==================================================
+  // THẦY DÁN GOOGLE APPS SCRIPT /EXEC VÀO DÒNG DƯỚI
+  // ==================================================
+  googleScriptUrl: "",
+  lessonId: "TIN9_BAI4",
+  lessonName: "Tin học 9 - Bài 4: Một số vấn đề pháp lí về sử dụng dịch vụ Internet",
+  schoolYear: "2026-2027",
+  teacherName: "Huỳnh Văn Diễn",
+  teacherCode: "GV2026"
+};
+
+const IS_DEMO = !CONFIG.googleScriptUrl;
+
+/* ---------------- DEMO DATA ---------------- */
+const DEMO_ROSTER = [
+  {StudentID:"HS001",HoTen:"Nguyễn Văn An",Lop:"9A1",Active:true},
+  {StudentID:"HS002",HoTen:"Trần Thị Bình",Lop:"9A1",Active:true},
+  {StudentID:"HS003",HoTen:"Lê Hoàng Cường",Lop:"9A1",Active:true},
+  {StudentID:"HS004",HoTen:"Phạm Thu Diệp",Lop:"9A2",Active:true},
+  {StudentID:"HS005",HoTen:"Hoàng Minh Đức",Lop:"9A2",Active:true}
+];
+
+/* ---------------- CONTENT DATA (bám sát SGK) ---------------- */
+const TIMELINE = [
+  {t:"06:30",label:"Xem điện thoại ngay khi thức dậy",risk:true,group:"SỨC KHOẺ"},
+  {t:"07:00",label:"Đi học",risk:false,group:null},
+  {t:"12:00",label:"Xem video liên tục giờ nghỉ trưa",risk:true,group:"SỨC KHOẺ"},
+  {t:"17:00",label:"Chơi game liên tục nhiều giờ",risk:true,group:"SỨC KHOẺ"},
+  {t:"19:00",label:"Nhờ AI làm hộ toàn bộ bài tập",risk:true,group:"HỌC TẬP"},
+  {t:"21:00",label:"Trò chuyện với người lạ, ẩn danh trên mạng xã hội",risk:true,group:"AN TOÀN"},
+  {t:"23:30",label:"Vẫn dùng điện thoại, khó ngủ",risk:true,group:"SỨC KHOẺ"}
+];
+const RISK_GROUPS = ["SỨC KHOẺ","RIÊNG TƯ","HỌC TẬP","GIAO TIẾP","AN TOÀN","MÔI TRƯỜNG"];
+
+const BALANCE_CASES = [
+  {text:"Chơi game liên tục nhiều giờ không nghỉ.", optA:{label:"Tiếp tục chơi thêm",delta:-15,fb:"Chơi liên tục dễ gây nghiện và ảnh hưởng sức khoẻ, cảm xúc."},
+   optB:{label:"Dừng lại, nghỉ ngơi",delta:+10,fb:"✅ Hợp lí! Nghỉ ngơi hợp lí giúp giữ cân bằng số."}},
+  {text:"Dùng điện thoại ngay trong bữa ăn cùng gia đình.", optA:{label:"Tiếp tục dùng điện thoại",delta:-10,fb:"Việc này có thể ảnh hưởng đến giao tiếp trong gia đình."},
+   optB:{label:"Cất điện thoại, trò chuyện",delta:+10,fb:"✅ Hợp lí! Giao tiếp trực tiếp rất quan trọng."}},
+  {text:"Một tài khoản lạ xin số điện thoại và địa chỉ nhà để 'gửi quà'.", optA:{label:"Cung cấp thông tin",delta:-20,fb:"🔎 Thông tin cá nhân có thể bị lợi dụng, cần rất thận trọng."},
+   optB:{label:"Từ chối cung cấp",delta:+15,fb:"✅ Hợp lí! Không nên chia sẻ thông tin cá nhân cho người lạ."}},
+  {text:"Nhận lời mời kết bạn từ một tài khoản không rõ danh tính.", optA:{label:"Chấp nhận ngay",delta:-10,fb:"🔎 Tài khoản ẩn danh/mạo danh tiềm ẩn rủi ro mất an toàn."},
+   optB:{label:"Kiểm tra kĩ trước khi quyết định",delta:+10,fb:"✅ Hợp lí! Thận trọng với người lạ trên mạng."}},
+  {text:"Đã dùng thiết bị số liên tục cả buổi tối, chưa tập thể dục hôm nay.", optA:{label:"Tiếp tục dùng thiết bị",delta:-10,fb:"Lệ thuộc thiết bị số kéo dài ảnh hưởng sức khoẻ thể chất."},
+   optB:{label:"Dành 15 phút vận động",delta:+15,fb:"✅ Hợp lí! Vận động giúp cân bằng giữa học tập, giải trí và sức khoẻ."}},
+  {text:"Xem được một nội dung không phù hợp lứa tuổi hiện lên ngẫu nhiên.", optA:{label:"Tiếp tục xem",delta:-10,fb:"🔎 Nội dung không phù hợp có thể ảnh hưởng không tốt."},
+   optB:{label:"Thoát ra, báo cáo nội dung",delta:+10,fb:"✅ Hợp lí! Biết dừng và báo cáo là cách xử lí có trách nhiệm."}}
+];
+
+const DETECTIVE_CATS = [
+  "Nội dung sai sự thật/không phù hợp",
+  "Làm lộ thông tin",
+  "Thư rác/tin nhắn rác",
+  "Dùng dữ liệu chưa được phép",
+  "Phần mềm không có bản quyền",
+  "Bắt nạt mạng",
+  "Lừa đảo qua mạng",
+  "Ứng xử thiếu văn hoá"
+];
+const DETECTIVE_CASES = [
+  {id:"CASE_01",text:"Bạn A đăng ảnh của bạn B lên mạng mà chưa hỏi ý kiến.",correct:"Làm lộ thông tin",explain:"Chia sẻ hình ảnh của người khác khi chưa được sự đồng ý là vi phạm quyền riêng tư."},
+  {id:"CASE_02",text:"Một tài khoản lạ gửi đường link nhận quà và yêu cầu chia sẻ cho 5 người.",correct:"Lừa đảo qua mạng",explain:"Đây là dấu hiệu điển hình của tin nhắn lừa đảo/trúng thưởng giả."},
+  {id:"CASE_03",text:"Một học sinh bình luận xúc phạm bạn khác trên mạng xã hội.",correct:"Bắt nạt mạng",explain:"Lời lẽ xúc phạm, chê bai người khác trên mạng là hành vi bắt nạt qua mạng."},
+  {id:"CASE_04",text:"Một người tải và sử dụng phần mềm có bản quyền từ nguồn không được phép.",correct:"Phần mềm không có bản quyền",explain:"Sử dụng phần mềm không có bản quyền hợp pháp là vi phạm pháp luật."},
+  {id:"CASE_05",text:"Một bạn đăng tin 'trường sắp nghỉ học vì lý do X' dù chưa xác minh, khiến nhiều người hoang mang.",correct:"Nội dung sai sự thật/không phù hợp",explain:"Chia sẻ thông tin chưa kiểm chứng có thể gây hậu quả xấu."},
+  {id:"CASE_06",text:"Một tài khoản liên tục gửi quảng cáo dù người nhận đã yêu cầu ngừng.",correct:"Thư rác/tin nhắn rác",explain:"Gửi tin nhắn quảng cáo dồn dập khi không được mong muốn là hành vi quấy rối."},
+  {id:"CASE_07",text:"Một bạn lấy ảnh, bài viết của người khác đăng lại như là sản phẩm của mình.",correct:"Dùng dữ liệu chưa được phép",explain:"Sử dụng sản phẩm số của người khác khi chưa xin phép là vi phạm."},
+  {id:"CASE_08",text:"Trên một diễn đàn, một người dùng từ ngữ phản cảm khi tranh luận với người khác.",correct:"Ứng xử thiếu văn hoá",explain:"Dùng từ ngữ phản cảm, thiếu tôn trọng người đối thoại là ứng xử thiếu văn hoá."}
+];
+
+const JUDGE_CASES = [
+  {text:"Một bạn chia sẻ bài viết chưa kiểm chứng thông tin lên nhóm lớp.",
+   options:[{k:"amber",label:"CẦN CÂN NHẮC",reason:"Nên kiểm chứng nguồn tin trước khi chia sẻ."}],
+   general:true, reasons:["Có thể gây hiểu lầm cho nhiều người","Ảnh hưởng uy tín của người khác","Cần kiểm chứng trước khi chia sẻ"]},
+  {text:"Một bạn đăng lại video của người khác kèm đầy đủ ghi nguồn và đã xin phép.",
+   options:[], general:true,
+   reasons:["Tôn trọng bản quyền","Có sự đồng ý của tác giả","Cách làm minh bạch"]},
+  {text:"Một bạn dùng lời lẽ chê bai ngoại hình của bạn cùng lớp trong nhóm chat.",
+   options:[], general:true,
+   reasons:["Gây tổn thương người khác","Có dấu hiệu bắt nạt qua mạng","Thiếu tôn trọng bạn bè"]},
+  {text:"Một bạn tải phần mềm học tập miễn phí, có bản quyền rõ ràng từ trang chính thức.",
+   options:[], general:true,
+   reasons:["Sử dụng đúng nguồn hợp pháp","Không vi phạm bản quyền","An toàn cho thiết bị"]}
+];
+const SCAM_CASE = {
+  text:"Em nhận được tin nhắn:\n“Chúc mừng! Em nhận được một phần quà. Hãy chia sẻ liên kết này cho 5 người và truy cập link để nhận quà.”",
+  options:[
+    {id:"A",label:"Chia sẻ ngay",outcome:"🔎 Chia sẻ ngay có thể vô tình lan truyền lừa đảo cho nhiều người khác."},
+    {id:"B",label:"Nhấn link kiểm tra",outcome:"🔎 Nhấn vào các liên kết lạ có thể khiến thiết bị và thông tin cá nhân gặp rủi ro."},
+    {id:"C",label:"Gửi cho bạn hỏi thử",outcome:"🔎 Việc này vẫn tiếp tục lan truyền liên kết chưa được xác minh."},
+    {id:"D",label:"Không nhấn link, không chia sẻ và báo cho người lớn/GV khi cần",outcome:"✅ Hợp lí! Đây là cách xử lí an toàn và có trách nhiệm trước dấu hiệu lừa đảo."}
+  ]
+};
+
+const CP_QUIZ = [
+  {q:"Việc chơi game liên tục nhiều giờ có thể dẫn đến điều gì?",opts:["Cải thiện sức khoẻ","Gây nghiện, khó kiểm soát cảm xúc","Tăng khả năng giao tiếp"],correct:1},
+  {q:"Trò chuyện với tài khoản ẩn danh/mạo danh có thể dẫn tới nguy cơ gì?",opts:["Mất an toàn thông tin cá nhân","Tăng cường bảo mật","Không có rủi ro"],correct:0},
+  {q:"Thiết bị số cũ, lỗi thời khi bị thải ra có thể gây ra điều gì?",opts:["Không ảnh hưởng gì","Rác thải điện tử gây hại môi trường","Giúp tái chế hoàn toàn tự nhiên"],correct:1}
+];
+
+const WARMUP_QUIZ = [
+  {q:"Việc nào sau đây là hành vi vi phạm pháp luật, trái đạo đức trong môi trường số?",opts:["Chúc mừng sinh nhật bạn trên mạng xã hội","Đăng hình ảnh bôi nhọ người khác","Chia sẻ bài học nhóm"],correct:1},
+  {q:"Sử dụng dữ liệu của người khác mà chưa xin phép là hành vi:",opts:["Bình thường, ai cũng làm","Vi phạm pháp luật","Không liên quan pháp luật"],correct:1},
+  {q:"Gửi tin nhắn quảng cáo liên tục dù người nhận không muốn là:",opts:["Hành vi quấy rối","Cách chăm sóc khách hàng tốt","Không có vấn đề gì"],correct:0}
+];
+
+const ET_CORE_CASE = {
+  q:"Một tài khoản không rõ danh tính nhắn tin xin số điện thoại và địa chỉ nhà của em 'để gửi quà tặng'. Em nên làm gì?",
+  opts:["Cung cấp ngay vì được tặng quà","Từ chối và không cung cấp thông tin cá nhân","Cung cấp nhưng chỉ số điện thoại"],
+  correct:1
+};
+
+/* ============================================================
+   STATE MANAGEMENT
+   ============================================================ */
+let roster = [];
+let currentStudent = null; // {StudentID, HoTen, Lop}
+let studentKey = null;
+let state = null; // full progress state object
+let activeTimerHandle = null;
+let lastActivity = Date.now();
+let pageVisibleTime = true;
+
+function defaultState(){
+  return {
+    StudentKey:"", LessonID:CONFIG.lessonId, StudentID:"", HoTen:"", Lop:"", NamHoc:CONFIG.schoolYear,
+    StartedAt:new Date().toISOString(), LastSeen:new Date().toISOString(),
+    Session1Done:false, Session2Done:false,
+    CurrentPage:"part1", Progress:0, Score:0, XP:0,
+    Session1ActiveSeconds:0, Session2ActiveSeconds:0, TotalActiveSeconds:0,
+    FastFinishFlag:false, CompletedAt:"",
+    responses:{}, // ActivityID -> answer data
+    habit:"", exitTicket:null
+  };
+}
+
+function lsKey(key){ return "TIN9_BAI4_state_" + key; }
+function saveLocal(){
+  state.LastSeen = new Date().toISOString();
+  state.TotalActiveSeconds = state.Session1ActiveSeconds + state.Session2ActiveSeconds;
+  localStorage.setItem(lsKey(studentKey), JSON.stringify(state));
+}
+function loadLocal(key){
+  const raw = localStorage.getItem(lsKey(key));
+  return raw ? JSON.parse(raw) : null;
+}
+
+/* ---------------- SYNC QUEUE (offline-safe) ---------------- */
+function queueKey(){ return "TIN9_BAI4_queue"; }
+function getQueue(){ return JSON.parse(localStorage.getItem(queueKey()) || "[]"); }
+function setQueue(q){ localStorage.setItem(queueKey(), JSON.stringify(q)); }
+function enqueueSync(action, payload, responseKey){
+  const q = getQueue();
+  const idx = q.findIndex(x => x.responseKey === responseKey);
+  const item = {responseKey: responseKey || (action+"_"+Date.now()), action, payload, ts:Date.now()};
+  if(idx>=0) q[idx]=item; else q.push(item);
+  setQueue(q);
+  trySyncQueue();
+}
+let syncing = false;
+async function trySyncQueue(){
+  if(IS_DEMO || syncing) return;
+  const q = getQueue();
+  if(q.length===0) return;
+  syncing = true;
+  showToast("🟠 CHỜ ĐỒNG BỘ");
+  let remaining = [...q];
+  for(const item of q){
+    try{
+      const res = await gasCall(item.action, item.payload);
+      if(res && res.ok){
+        remaining = remaining.filter(x=>x.responseKey!==item.responseKey);
+      }
+    }catch(e){ /* stay in queue */ }
+  }
+  setQueue(remaining);
+  syncing = false;
+  if(remaining.length===0) showToast("🟢 ĐÃ ĐỒNG BỘ");
+}
+
+async function gasCall(action, payload){
+  if(IS_DEMO) return {ok:true, demo:true};
+  const body = JSON.stringify({action, ...payload});
+  const res = await fetch(CONFIG.googleScriptUrl, {
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body
+  });
+  return await res.json();
+}
+async function gasGet(action, params){
+  if(IS_DEMO) return null;
+  const qs = new URLSearchParams({action, ...params}).toString();
+  const res = await fetch(CONFIG.googleScriptUrl + "?" + qs);
+  return await res.json();
+}
+
+/* ---------------- TOAST ---------------- */
+let toastTimeout=null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   INIT / ROSTER
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', init);
+async function init(){
+  document.getElementById('modePill').className = 'mode-pill ' + (IS_DEMO?'pill-demo':'pill-live');
+  document.getElementById('modePill').textContent = IS_DEMO?'🟡 DEMO MODE':'🟢 ĐÃ KẾT NỐI';
+  setupActivityTracking();
+  await loadRoster();
+}
+
+async function loadRoster(){
+  if(IS_DEMO){
+    roster = DEMO_ROSTER;
+  } else {
+    try{
+      const r = await gasGet('getRoster', {lessonId:CONFIG.lessonId});
+      roster = (r && r.roster) ? r.roster : DEMO_ROSTER;
+    }catch(e){ roster = DEMO_ROSTER; document.getElementById('rosterNote').textContent = "⚠ Không kết nối được máy chủ, dùng dữ liệu mẫu."; }
+  }
+  const classes = [...new Set(roster.filter(s=>s.Active).map(s=>s.Lop))].sort();
+  const sel = document.getElementById('selClass');
+  sel.innerHTML = '<option value="">— Chọn lớp —</option>' + classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+  document.getElementById('rosterNote').textContent = classes.length? "" : "Chưa có danh sách học sinh. Vui lòng liên hệ giáo viên.";
+}
+
+function onClassChange(){
+  const cls = document.getElementById('selClass').value;
+  const selS = document.getElementById('selStudent');
+  const btn = document.getElementById('btnStart');
+  if(!cls){ selS.disabled=true; selS.innerHTML='<option value="">— Chọn lớp trước —</option>'; btn.disabled=true; return; }
+  const students = roster.filter(s=>s.Active && s.Lop===cls);
+  selS.innerHTML = '<option value="">— Chọn học sinh —</option>' + students.map(s=>`<option value="${s.StudentID}">${s.HoTen}</option>`).join('');
+  selS.disabled=false;
+  selS.onchange = ()=>{ btn.disabled = !selS.value; checkResume(); };
+  btn.disabled = true;
+}
+
+async function checkResume(){
+  const cls = document.getElementById('selClass').value;
+  const sid = document.getElementById('selStudent').value;
+  if(!sid) return;
+  const key = `${CONFIG.lessonId}_${CONFIG.schoolYear}_${sid}`;
+  let existing = loadLocal(key);
+  if(!IS_DEMO){
+    try{
+      const r = await gasGet('getProgress', {studentKey:key, lessonId:CONFIG.lessonId});
+      if(r && r.found) existing = r.state;
+    }catch(e){}
+  }
+  const card = document.getElementById('resumeCard');
+  if(existing && existing.Session1Done && !existing.CompletedAt){
+    card.style.display='block';
+    document.getElementById('resumeText').textContent = `Tiết 1: ✅ Đã hoàn thành — Điểm ${existing.Score||0} · XP ${existing.XP||0}`;
+    document.getElementById('resumeFill').style.width = (existing.Progress||40)+'%';
+    document.getElementById('resumeLabel').textContent = (existing.Progress||40)+'%';
+  } else {
+    card.style.display='none';
+  }
+}
+
+function startJourney(){
+  const cls = document.getElementById('selClass').value;
+  const sid = document.getElementById('selStudent').value;
+  const s = roster.find(x=>x.StudentID===sid);
+  if(!s) return;
+  currentStudent = s;
+  studentKey = `${CONFIG.lessonId}_${CONFIG.schoolYear}_${sid}`;
+  let existing = loadLocal(studentKey);
+  state = existing || defaultState();
+  state.StudentKey = studentKey; state.StudentID = sid; state.HoTen = s.HoTen; state.Lop = cls || s.Lop;
+  saveLocal();
+  document.getElementById('lessonHeader').style.display='block';
+  if(state.Session1Done && !state.CompletedAt){
+    renderWarmup(); showScreen('screen-part3'); startActiveTimer(2);
+  } else if(state.CompletedAt){
+    showScreen('screen-complete'); finalizeCompleteScreen();
+  } else {
+    renderPart1(); showScreen('screen-part1'); startActiveTimer(1);
+  }
+  updateMainProgress();
+}
+function continueJourney(){ startJourney(); }
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateMainProgress(){
+  document.getElementById('mainProgressFill').style.width = (state.Progress||0)+'%';
+  document.getElementById('mainProgressLabel').textContent = (state.Progress||0)+'%';
+  document.getElementById('xpTag').textContent = 'XP '+(state.XP||0);
+}
+function addXP(n){ state.XP=(state.XP||0)+n; updateMainProgress(); saveLocal(); }
+function setProgress(p){ state.Progress=p; updateMainProgress(); saveLocal(); }
+
+/* ---------------- ACTIVE LEARNING TIMER ---------------- */
+function setupActivityTracking(){
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(evt=>{
+    window.addEventListener(evt, ()=>{ lastActivity=Date.now(); }, {passive:true});
+  });
+  document.addEventListener('visibilitychange', ()=>{ pageVisibleTime = !document.hidden; });
+}
+function startActiveTimer(session){
+  if(activeTimerHandle) clearInterval(activeTimerHandle);
+  activeTimerHandle = setInterval(()=>{
+    if(!state) return;
+    const idle = Date.now()-lastActivity > 120000;
+    if(!document.hidden && !idle){
+      if(session===1) state.Session1ActiveSeconds=(state.Session1ActiveSeconds||0)+1;
+      else state.Session2ActiveSeconds=(state.Session2ActiveSeconds||0)+1;
+      state.TotalActiveSeconds = (state.Session1ActiveSeconds||0)+(state.Session2ActiveSeconds||0);
+    }
+  }, 1000);
+}
+
+/* ---------------- SAVE RESPONSE HELPER ---------------- */
+function saveResponse(activityId, answer, correct, score){
+  state.responses[activityId] = {answer, correct, score, updatedAt:new Date().toISOString()};
+  saveLocal();
+  const key = studentKey+"_"+activityId;
+  enqueueSync('saveResponse', {
+    responseKey:key, studentKey, lessonId:CONFIG.lessonId, activityId,
+    answerJson:JSON.stringify(answer), correct:!!correct, score:score||0,
+    activeSeconds: state.TotalActiveSeconds
+  }, key);
+}
+
+/* ============================================================
+   PART 1 — MẶT TRÁI CỦA THẾ GIỚI SỐ
+   ============================================================ */
+let selectedRiskItems = [];
+function renderPart1(){
+  const grid = document.getElementById('timelineGrid');
+  grid.innerHTML = TIMELINE.map((it,i)=>`
+    <div class="tile" data-i="${i}" onclick="toggleTimelineItem(${i})">
+      <div class="t-time">${it.t}</div>
+      <div>${it.label}</div>
+    </div>`).join('');
+  document.getElementById('riskMapCard').style.display='none';
+  document.getElementById('btnToRiskMap').disabled = true;
+  selectedRiskItems = [];
+}
+function toggleTimelineItem(i){
+  const tile = document.querySelector(`#timelineGrid .tile[data-i="${i}"]`);
+  const idx = selectedRiskItems.indexOf(i);
+  if(idx>=0){ selectedRiskItems.splice(idx,1); tile.classList.remove('selected'); }
+  else { selectedRiskItems.push(i); tile.classList.add('selected'); }
+  document.getElementById('btnToRiskMap').disabled = selectedRiskItems.length===0;
+}
+let riskAnswered=0;
+function showRiskMap(){
+  document.getElementById('riskMapCard').style.display='block';
+  riskAnswered=0;
+  const box = document.getElementById('riskItems');
+  box.innerHTML = selectedRiskItems.map(i=>{
+    const it = TIMELINE[i];
+    return `<div class="case-box">
+      <p><b>${it.t}</b> — ${it.label}</p>
+      <div class="cat-grid">${RISK_GROUPS.map(g=>`<button class="cat-btn" onclick="pickRiskGroup(this,${i},'${g}')">${g}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+function pickRiskGroup(btn,i,group){
+  const box = btn.parentElement;
+  if(box.dataset.done) return;
+  box.dataset.done="1";
+  const correct = TIMELINE[i].group;
+  [...box.querySelectorAll('.cat-btn')].forEach(b=>{
+    if(b.textContent===correct) b.classList.add('right');
+    if(b===btn && group!==correct) b.classList.add('miss');
+    b.disabled=true;
+  });
+  riskAnswered++;
+  saveResponse('P1_RISKMAP_'+i, {picked:group,correct}, group===correct, group===correct?5:2);
+  addXP(10);
+  const fb = document.getElementById('riskFeedback');
+  fb.className='feedback show '+(group===correct?'good':'think');
+  fb.innerHTML = group===correct
+    ? "✅ Chính xác.<br>Điều đáng chú ý không phải là “công nghệ xấu”, mà là cách chúng ta sử dụng công nghệ."
+    : "🔎 Hãy thử suy nghĩ lại:<br>Tình huống này ảnh hưởng chủ yếu đến điều gì?";
+  if(riskAnswered>=selectedRiskItems.length){
+    document.getElementById('btnPart1Next').disabled=false;
+  }
+}
+function goPart2(){
+  setProgress(20); state.CurrentPage='part2'; saveLocal();
+  renderPart2(); showScreen('screen-part2');
+}
+
+/* ============================================================
+   PART 2 — DIGITAL BALANCE
+   ============================================================ */
+let balanceValue=50, balanceIdx=0;
+function renderPart2(){
+  balanceValue=50; balanceIdx=0;
+  document.getElementById('balanceMarker').style.left='50%';
+  document.getElementById('balanceReflect').style.display='none';
+  showBalanceCase();
+}
+function showBalanceCase(){
+  document.getElementById('balanceFeedback').className='feedback';
+  if(balanceIdx>=BALANCE_CASES.length){
+    document.getElementById('balanceCaseBox').innerHTML='';
+    document.getElementById('balanceReflect').style.display='block';
+    return;
+  }
+  const c = BALANCE_CASES[balanceIdx];
+  document.getElementById('balanceCaseBox').innerHTML = `
+    <div class="case-box">
+      <p><b>Tình huống ${balanceIdx+1}/${BALANCE_CASES.length}:</b> ${c.text}</p>
+      <div class="row">
+        <button class="btn btn-secondary" style="flex:1;" onclick="pickBalance('A')">${c.optA.label}</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="pickBalance('B')">${c.optB.label}</button>
+      </div>
+    </div>`;
+}
+function pickBalance(which){
+  const c = BALANCE_CASES[balanceIdx];
+  const opt = which==='A'?c.optA:c.optB;
+  balanceValue = Math.max(0,Math.min(100, balanceValue+opt.delta));
+  document.getElementById('balanceMarker').style.left = balanceValue+'%';
+  const fb = document.getElementById('balanceFeedback');
+  fb.className = 'feedback show ' + (opt.delta>0?'good':'think');
+  fb.textContent = opt.fb;
+  saveResponse('P2_BALANCE_'+balanceIdx, {picked:which}, opt.delta>0, opt.delta>0?5:2);
+  addXP(10);
+  balanceIdx++;
+  setTimeout(showBalanceCase, 1400);
+}
+function goCheckpoint1(){
+  state.habit = document.getElementById('txtHabit').value;
+  saveResponse('P2_HABIT', {habit:state.habit}, true, 0);
+  setProgress(40); state.CurrentPage='checkpoint1'; saveLocal();
+  renderCheckpoint1(); showScreen('screen-checkpoint1');
+}
+
+/* ============================================================
+   CHECKPOINT 1
+   ============================================================ */
+let cpAnswers = {};
+function renderCheckpoint1(){
+  cpAnswers={};
+  document.getElementById('cpQuizBox').innerHTML = CP_QUIZ.map((q,i)=>`
+    <div class="case-box">
+      <p><b>Câu ${i+1}.</b> ${q.q}</p>
+      <div class="grid">${q.opts.map((o,j)=>`<button class="tile" onclick="pickCP(${i},${j},this)">${o}</button>`).join('')}</div>
+    </div>`).join('');
+  document.getElementById('cpSaved').style.display='none';
+  document.getElementById('btnSaveSession1').disabled=false;
+}
+function pickCP(qi,oi,btn){
+  const box = btn.closest('.case-box');
+  if(box.dataset.done) return;
+  box.dataset.done="1";
+  const correct = CP_QUIZ[qi].correct===oi;
+  [...box.querySelectorAll('.tile')].forEach((t,j)=>{
+    if(j===CP_QUIZ[qi].correct) t.classList.add('correct');
+    if(j===oi && !correct) t.classList.add('wrong');
+  });
+  cpAnswers[qi]={oi,correct};
+  saveResponse('CP1_Q'+qi, {picked:oi}, correct, correct?10:3);
+  const c1 = (state.Score||0)+(correct?10:3); state.Score=c1; saveLocal();
+}
+function saveSession1(){
+  state.Session1Done = true;
+  state.CurrentPage = 'part3';
+  setProgress(40);
+  saveLocal();
+  const key = studentKey+"_session1";
+  enqueueSync('saveStudent', {
+    studentKey, lessonId:CONFIG.lessonId, studentId:state.StudentID, hoTen:state.HoTen, lop:state.Lop,
+    namHoc:CONFIG.schoolYear, currentPage:state.CurrentPage, progress:state.Progress, score:state.Score, xp:state.XP,
+    session1Done:true, session2Done:state.Session2Done,
+    session1ActiveSeconds:state.Session1ActiveSeconds, session2ActiveSeconds:state.Session2ActiveSeconds,
+    totalActiveSeconds:state.TotalActiveSeconds, fastFinishFlag:state.FastFinishFlag
+  }, key);
+  document.getElementById('btnSaveSession1').disabled=true;
+  document.getElementById('cpSaved').style.display='block';
+}
+
+/* ============================================================
+   PART 3 — WARMUP + THÁM TỬ INTERNET
+   ============================================================ */
+let warmupIdx=0, warmupDone=false;
+function renderWarmup(){
+  warmupIdx=0; warmupDone=false;
+  document.getElementById('detectiveCard').style.display='none';
+  document.getElementById('btnWarmupNext').style.display='none';
+  showWarmupQ();
+}
+function showWarmupQ(){
+  if(warmupIdx>=WARMUP_QUIZ.length){
+    document.getElementById('warmupBox').innerHTML = '<p>✅ Tuyệt vời! Em đã sẵn sàng cho phần tiếp theo.</p>';
+    document.getElementById('btnWarmupNext').style.display='inline-flex';
+    return;
+  }
+  const q = WARMUP_QUIZ[warmupIdx];
+  document.getElementById('warmupBox').innerHTML = `
+    <div class="case-box">
+      <p><b>Câu ${warmupIdx+1}/3.</b> ${q.q}</p>
+      <div class="grid">${q.opts.map((o,j)=>`<button class="tile" onclick="pickWarmup(${j},this)">${o}</button>`).join('')}</div>
+    </div>`;
+}
+function pickWarmup(j,btn){
+  const box = btn.closest('.case-box');
+  if(box.dataset.done) return;
+  box.dataset.done="1";
+  const q = WARMUP_QUIZ[warmupIdx];
+  [...box.querySelectorAll('.tile')].forEach((t,k)=>{
+    if(k===q.correct) t.classList.add('correct');
+    if(k===j && j!==q.correct) t.classList.add('wrong');
+  });
+  saveResponse('WARMUP_Q'+warmupIdx, {picked:j}, j===q.correct, j===q.correct?5:1);
+  setTimeout(()=>{ warmupIdx++; showWarmupQ(); }, 1100);
+}
+function goDetective(){
+  document.getElementById('detectiveCard').style.display='block';
+  renderDetective();
+  document.getElementById('detectiveCard').scrollIntoView({behavior:'smooth'});
+}
+let detIdx=0, detDone=0;
+function renderDetective(){
+  detIdx=0; detDone=0;
+  document.getElementById('btnPart3Next').style.display='none';
+  showDetCase();
+}
+function showDetCase(){
+  if(detIdx>=DETECTIVE_CASES.length){
+    document.getElementById('detectiveCaseBox').innerHTML = '<p>🎉 Em đã hoàn thành tất cả các CASE!</p>';
+    document.getElementById('btnPart3Next').style.display='inline-flex';
+    return;
+  }
+  const c = DETECTIVE_CASES[detIdx];
+  document.getElementById('detectiveCaseBox').innerHTML = `
+    <div class="case-box">
+      <div class="case-num">${c.id} · ${detIdx+1}/${DETECTIVE_CASES.length}</div>
+      <p>${c.text}</p>
+      <div class="cat-grid">${DETECTIVE_CATS.map(g=>`<button class="cat-btn" onclick="pickDetCat(this,'${g.replace(/'/g,"\\'")}')">${g}</button>`).join('')}</div>
+      <div class="feedback" id="detFb"></div>
+      <div class="row center" style="margin-top:12px;">
+        <button class="btn btn-primary" id="detNextBtn" style="display:none;" onclick="detIdx++;showDetCase();">CASE tiếp theo →</button>
+      </div>
+    </div>`;
+}
+function pickDetCat(btn, group){
+  const wrap = btn.closest('.case-box');
+  if(wrap.dataset.done) return;
+  wrap.dataset.done="1";
+  const c = DETECTIVE_CASES[detIdx];
+  const correct = group===c.correct;
+  [...wrap.querySelectorAll('.cat-btn')].forEach(b=>{
+    if(b.textContent===c.correct) b.classList.add('right');
+    if(b===btn && !correct) b.classList.add('miss');
+    b.disabled=true;
+  });
+  saveResponse('DET_'+c.id, {picked:group,correct:c.correct}, correct, correct?10:3);
+  addXP(10);
+  const fb = document.getElementById('detFb');
+  fb.className='feedback show '+(correct?'good':'think');
+  fb.innerHTML = correct ? `✅ Chính xác! ${c.explain}` : `🔎 Thử suy nghĩ thêm: ${c.explain}`;
+  document.getElementById('detNextBtn').style.display='inline-flex';
+}
+function goPart4(){
+  setProgress(65); state.CurrentPage='part4'; saveLocal();
+  renderJudge(); showScreen('screen-part4');
+}
+
+/* ============================================================
+   PART 4 — DIGITAL JUDGE
+   ============================================================ */
+let judgeIdx=0;
+const ALL_JUDGE = [...JUDGE_CASES, {scam:true}];
+function renderJudge(){
+  judgeIdx=0;
+  document.getElementById('btnPart4Next').style.display='none';
+  showJudgeCase();
+}
+function showJudgeCase(){
+  if(judgeIdx>=ALL_JUDGE.length){
+    document.getElementById('judgeCaseBox').innerHTML = '<p>🎉 Em đã hoàn thành các phiên xử!</p>';
+    document.getElementById('btnPart4Next').style.display='inline-flex';
+    return;
+  }
+  const c = ALL_JUDGE[judgeIdx];
+  if(c.scam){
+    document.getElementById('judgeCaseBox').innerHTML = `
+      <div class="case-box">
+        <div class="case-num">Tình huống đặc biệt</div>
+        <p style="white-space:pre-line;">${SCAM_CASE.text}</p>
+        <div class="grid grid-2">${SCAM_CASE.options.map(o=>`<button class="tile" onclick="pickScam('${o.id}',this)">${o.id}. ${o.label}</button>`).join('')}</div>
+        <div class="feedback" id="judgeFb"></div>
+        <div class="row center" style="margin-top:12px;"><button class="btn btn-primary" id="judgeNextBtn" style="display:none;" onclick="judgeIdx++;showJudgeCase();">Tiếp theo →</button></div>
+      </div>`;
+    return;
+  }
+  document.getElementById('judgeCaseBox').innerHTML = `
+    <div class="case-box">
+      <div class="case-num">Case ${judgeIdx+1}/${ALL_JUDGE.length}</div>
+      <p>${c.text}</p>
+      <div class="choice-row">
+        <button class="choice-btn green" onclick="pickJudge('green',this)">🟢 PHÙ HỢP</button>
+        <button class="choice-btn amber" onclick="pickJudge('amber',this)">🟡 CẦN CÂN NHẮC</button>
+        <button class="choice-btn red" onclick="pickJudge('red',this)">🔴 KHÔNG NÊN LÀM</button>
+      </div>
+      <div id="judgeReasonBox"></div>
+      <div class="feedback" id="judgeFb"></div>
+      <div class="row center" style="margin-top:12px;"><button class="btn btn-primary" id="judgeNextBtn" style="display:none;" onclick="judgeIdx++;showJudgeCase();">Tiếp theo →</button></div>
+    </div>`;
+}
+function pickJudge(color, btn){
+  const box = btn.closest('.case-box');
+  if(box.dataset.picked) return;
+  box.dataset.picked=color;
+  [...box.querySelectorAll('.choice-btn')].forEach(b=>{ if(b!==btn) b.disabled=true; });
+  btn.classList.add('picked-'+color);
+  const c = JUDGE_CASES[judgeIdx];
+  document.getElementById('judgeReasonBox').innerHTML = `
+    <p style="margin-top:10px;font-weight:700;">Tại sao?</p>
+    <div class="grid">${c.reasons.map((r,i)=>`<button class="tile" onclick="pickJudgeReason(${i},this)">${r}</button>`).join('')}</div>`;
+}
+function pickJudgeReason(i,btn){
+  const box = btn.closest('.case-box');
+  if(box.dataset.reasoned) return;
+  box.dataset.reasoned="1";
+  btn.classList.add('selected');
+  [...btn.parentElement.querySelectorAll('.tile')].forEach(t=>t.disabled=true);
+  const color = box.dataset.picked;
+  saveResponse('JUDGE_'+judgeIdx, {color, reason:i}, true, 8);
+  addXP(20);
+  const fb = document.getElementById('judgeFb');
+  fb.className='feedback show good';
+  fb.textContent = '✅ Cảm ơn em đã chia sẻ cách nhìn nhận của mình.';
+  document.getElementById('judgeNextBtn').style.display='inline-flex';
+}
+function pickScam(id, btn){
+  const box = btn.closest('.case-box');
+  if(box.dataset.done) return;
+  box.dataset.done="1";
+  const opt = SCAM_CASE.options.find(o=>o.id===id);
+  [...box.querySelectorAll('.tile')].forEach(t=>{ if(t.textContent.startsWith('D.')) t.classList.add('correct'); });
+  btn.classList.add(id==='D'?'correct':'wrong');
+  saveResponse('JUDGE_SCAM', {picked:id}, id==='D', id==='D'?20:5);
+  addXP(20);
+  const fb = document.getElementById('judgeFb');
+  fb.className='feedback show '+(id==='D'?'good':'think');
+  fb.textContent = opt.outcome;
+  document.getElementById('judgeNextBtn').style.display='inline-flex';
+}
+function goPart5(){
+  setProgress(85); state.CurrentPage='part5'; saveLocal();
+  renderPart5(); showScreen('screen-part5');
+}
+
+/* ============================================================
+   PART 5 — EXIT TICKET + MINDMAP
+   ============================================================ */
+function renderPart5(){
+  document.getElementById('etCoreCheckBox').innerHTML = `
+    <div class="case-box">
+      <p>${ET_CORE_CASE.q}</p>
+      <div class="grid">${ET_CORE_CASE.opts.map((o,j)=>`<button class="tile" onclick="pickCoreCheck(${j},this)">${o}</button>`).join('')}</div>
+    </div>`;
+  document.getElementById('etUnderstandingBox').innerHTML = [1,2,3,4,5].map(n=>
+    `<button class="tile" onclick="pickUnderstanding(${n},this)">${n} — ${["Em còn khá mơ hồ","Em hiểu một phần","Em hiểu phần lớn","Em hiểu tốt","Em có thể giải thích cho bạn khác"][n-1]}</button>`
+  ).join('');
+  document.querySelectorAll('.mm-input').forEach(inp=> inp.addEventListener('input', drawMindmap));
+  drawMindmap();
+}
+let coreCheckPicked=null, understandingPicked=null;
+function pickCoreCheck(j,btn){
+  const box = btn.closest('.case-box');
+  if(box.dataset.done) return;
+  box.dataset.done="1";
+  const correct = j===ET_CORE_CASE.correct;
+  [...box.querySelectorAll('.tile')].forEach((t,k)=>{
+    if(k===ET_CORE_CASE.correct) t.classList.add('correct');
+    if(k===j && !correct) t.classList.add('wrong');
+  });
+  coreCheckPicked=j;
+  saveResponse('ET_CORECHECK', {picked:j}, correct, correct?10:3);
+}
+function pickUnderstanding(n,btn){
+  [...btn.parentElement.querySelectorAll('.tile')].forEach(t=>t.classList.remove('selected'));
+  btn.classList.add('selected');
+  understandingPicked=n;
+}
+function drawMindmap(){
+  const branches = {neg:[],bad:[],do:[]};
+  document.querySelectorAll('.mm-input').forEach(inp=>{
+    if(inp.value.trim()) branches[inp.dataset.branch].push(inp.value.trim());
+  });
+  const cols = [
+    {key:'neg',x:120,color:'#e2513b',title:'Tác động tiêu cực'},
+    {key:'bad',x:400,color:'#e2a12b',title:'Hành vi cần tránh'},
+    {key:'do',x:680,color:'#1fa971',title:'Em sẽ làm gì?'}
+  ];
+  let svg = `<svg viewBox="0 0 800 340" width="100%" style="max-width:800px;display:block;margin:0 auto;">
+    <circle cx="400" cy="40" r="42" fill="#1f6feb"/>
+    <text x="400" y="36" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">SỬ DỤNG INTERNET</text>
+    <text x="400" y="50" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">CÓ TRÁCH NHIỆM</text>`;
+  cols.forEach(c=>{
+    svg += `<line x1="400" y1="70" x2="${c.x}" y2="110" stroke="${c.color}" stroke-width="2"/>`;
+    svg += `<rect x="${c.x-70}" y="88" width="140" height="26" rx="8" fill="${c.color}"/>`;
+    svg += `<text x="${c.x}" y="105" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${c.title}</text>`;
+    const items = branches[c.key];
+    items.forEach((txt,i)=>{
+      const y = 140 + i*55;
+      svg += `<line x1="${c.x}" y1="114" x2="${c.x}" y2="${y+14}" stroke="${c.color}" stroke-width="1.5" opacity=".5"/>`;
+      svg += `<rect x="${c.x-75}" y="${y}" width="150" height="30" rx="8" fill="#fff" stroke="${c.color}" stroke-width="1.5"/>`;
+      svg += `<text x="${c.x}" y="${y+19}" text-anchor="middle" fill="#152238" font-size="11">${escXml(txt).slice(0,20)}</text>`;
+    });
+  });
+  svg += `</svg>`;
+  document.getElementById('mindmapSvgWrap').innerHTML = svg;
+}
+function escXml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function tryComplete(){
+  if((state.TotalActiveSeconds||0) < 600){
+    document.getElementById('fastFinishModal').classList.add('show');
+    return;
+  }
+  finishLesson(false);
+}
+function closeFastFinish(){ document.getElementById('fastFinishModal').classList.remove('show'); }
+function forceComplete(){
+  document.getElementById('fastFinishModal').classList.remove('show');
+  finishLesson(true);
+}
+function finishLesson(fastFlag){
+  state.FastFinishFlag = !!fastFlag;
+  state.Session2Done = true;
+  state.CompletedAt = new Date().toISOString();
+  const branches = {neg:[],bad:[],do:[]};
+  document.querySelectorAll('.mm-input').forEach(inp=>{ if(inp.value.trim()) branches[inp.dataset.branch].push(inp.value.trim()); });
+  state.exitTicket = {
+    keyLearning: document.getElementById('etKnowledge').value,
+    coreCheck: coreCheckPicked,
+    application: document.getElementById('etApplication').value,
+    understanding: understandingPicked,
+    mindmap: branches,
+    question: document.getElementById('etQuestion').value
+  };
+  addXP(20);
+  setProgress(100);
+  saveLocal();
+  const key = studentKey+"_exitticket";
+  enqueueSync('saveExitTicket', {
+    responseKey:key, studentKey, lessonId:CONFIG.lessonId, studentId:state.StudentID, hoTen:state.HoTen, lop:state.Lop,
+    keyLearning:state.exitTicket.keyLearning, coreCheck:state.exitTicket.coreCheck, application:state.exitTicket.application,
+    understanding:state.exitTicket.understanding, mindmapJson:JSON.stringify(state.exitTicket.mindmap), question:state.exitTicket.question
+  }, key);
+  const key2 = studentKey+"_final";
+  enqueueSync('saveStudent', {
+    studentKey, lessonId:CONFIG.lessonId, studentId:state.StudentID, hoTen:state.HoTen, lop:state.Lop,
+    namHoc:CONFIG.schoolYear, currentPage:'complete', progress:100, score:state.Score, xp:state.XP,
+    session1Done:true, session2Done:true,
+    session1ActiveSeconds:state.Session1ActiveSeconds, session2ActiveSeconds:state.Session2ActiveSeconds,
+    totalActiveSeconds:state.TotalActiveSeconds, fastFinishFlag:state.FastFinishFlag, completedAt:state.CompletedAt
+  }, key2);
+  showScreen('screen-complete');
+  finalizeCompleteScreen();
+  if(activeTimerHandle) clearInterval(activeTimerHandle);
+}
+function finalizeCompleteScreen(){
+  document.getElementById('finalXp').textContent = 'XP '+(state.XP||0)+' · 🛡️ DIGITAL CITIZEN';
+  document.getElementById('syncFinalStatus').textContent = IS_DEMO
+    ? 'Chế độ Demo — dữ liệu lưu trên trình duyệt này.'
+    : (getQueue().length ? 'Đang chờ đồng bộ với Google Sheet...' : 'Đã đồng bộ với Google Sheet.');
+}
+
+/* ============================================================
+   TEACHER MODE
+   ============================================================ */
+function openTeacherLogin(){ document.getElementById('teacherLoginModal').classList.add('show'); document.getElementById('teacherPwdInput').value=''; document.getElementById('teacherLoginError').style.display='none'; }
+function closeTeacherLogin(){ document.getElementById('teacherLoginModal').classList.remove('show'); }
+function toggleTeacherPwd(){
+  const inp = document.getElementById('teacherPwdInput');
+  const btn = document.getElementById('pwdToggleBtn');
+  if(inp.type==='password'){ inp.type='text'; btn.textContent='ẨN'; }
+  else { inp.type='password'; btn.textContent='HIỆN'; }
+}
+async function submitTeacherLogin(){
+  const pwd = document.getElementById('teacherPwdInput').value;
+  let ok=false;
+  if(IS_DEMO){
+    ok = (pwd===CONFIG.teacherCode);
+  } else {
+    try{
+      const r = await gasCall('teacherAuth', {code:pwd, lessonId:CONFIG.lessonId});
+      ok = r && r.ok;
+    }catch(e){ ok = (pwd===CONFIG.teacherCode); }
+  }
+  if(!ok){ document.getElementById('teacherLoginError').style.display='block'; return; }
+  closeTeacherLogin();
+  showScreen('screen-teacher');
+  await loadTeacherData();
+  switchTeacherTab('overview');
+}
+function exitTeacher(){ location.reload(); }
+
+let teacherData = null;
+async function loadTeacherData(){
+  if(IS_DEMO){
+    teacherData = buildDemoTeacherData();
+  } else {
+    try{
+      const r = await gasCall('teacherDashboard', {code:CONFIG.teacherCode, lessonId:CONFIG.lessonId});
+      teacherData = r && r.data ? r.data : buildDemoTeacherData();
+    }catch(e){ teacherData = buildDemoTeacherData(); }
+  }
+}
+function buildDemoTeacherData(){
+  // Gather all cached students in localStorage matching lessonId prefix
+  const students = [];
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k.startsWith('TIN9_BAI4_state_')){
+      try{ const st = JSON.parse(localStorage.getItem(k)); students.push(st); }catch(e){}
+    }
+  }
+  return {students};
+}
+function switchTeacherTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  const box = document.getElementById('teacherTabContent');
+  const students = (teacherData && teacherData.students) || [];
+  if(tab==='overview'){
+    const total = students.length;
+    const started = students.filter(s=>s.CurrentPage).length;
+    const s1 = students.filter(s=>s.Session1Done).length;
+    const done = students.filter(s=>s.CompletedAt).length;
+    const avgScore = total? Math.round(students.reduce((a,s)=>a+(s.Score||0),0)/total) : 0;
+    const avgTime = total? Math.round(students.reduce((a,s)=>a+(s.TotalActiveSeconds||0),0)/total/60) : 0;
+    const fast = students.filter(s=>s.FastFinishFlag).length;
+    box.innerHTML = `<div class="grid grid-3">
+      ${statCard(total,'Tổng số học sinh')}
+      ${statCard(started,'Đã bắt đầu')}
+      ${statCard(s1,'Hoàn thành tiết 1')}
+      ${statCard(done,'Hoàn thành toàn bài')}
+      ${statCard(avgScore,'Điểm trung bình')}
+      ${statCard(avgTime+'p','Thời gian TB')}
+      ${statCard(fast,'Hoàn thành < 10 phút')}
+    </div>`;
+  } else if(tab==='classes'){
+    const classes = [...new Set(students.map(s=>s.Lop))];
+    box.innerHTML = `<div class="field"><label>Chọn lớp</label><select id="teacherClassSel" onchange="renderClassTable()"><option value="">Tất cả</option>${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div><div id="classTableWrap"></div>`;
+    renderClassTable();
+  } else if(tab==='hard'){
+    box.innerHTML = `<p>Tổng hợp mức độ đúng theo từng CASE (dựa trên dữ liệu học sinh hiện có):</p><div id="hardTable"></div>`;
+    renderHardTable();
+  } else if(tab==='exit'){
+    box.innerHTML = renderExitAnalytics();
+  } else if(tab==='mindmap'){
+    box.innerHTML = `<p>Nhấn tên học sinh để xem sơ đồ tư duy Exit Ticket.</p><div class="grid grid-3">${students.filter(s=>s.exitTicket).map(s=>`<button class="tile" onclick='viewMindmap(${JSON.stringify(JSON.stringify(s.exitTicket.mindmap))})'>${s.HoTen} (${s.Lop})</button>`).join('') || '<p>Chưa có dữ liệu.</p>'}</div><div id="mindmapViewer" style="margin-top:14px;"></div>`;
+  } else if(tab==='fast'){
+    const fastS = students.filter(s=>s.FastFinishFlag);
+    box.innerHTML = `<table><thead><tr><th>Họ tên</th><th>Lớp</th><th>Thời gian (giây)</th></tr></thead><tbody>${fastS.map(s=>`<tr><td>${s.HoTen}</td><td>${s.Lop}</td><td>${s.TotalActiveSeconds||0}</td></tr>`).join('') || '<tr><td colspan="3">Không có trường hợp nào.</td></tr>'}</tbody></table>`;
+  }
+}
+function statCard(num,lbl){ return `<div class="stat-card"><div class="stat-num">${num}</div><div class="stat-lbl">${lbl}</div></div>`; }
+function renderClassTable(){
+  const students = (teacherData && teacherData.students) || [];
+  const cls = document.getElementById('teacherClassSel') ? document.getElementById('teacherClassSel').value : '';
+  const list = cls ? students.filter(s=>s.Lop===cls) : students;
+  document.getElementById('classTableWrap').innerHTML = `<table><thead><tr><th>Họ tên</th><th>Tiến độ</th><th>Tiết 1</th><th>Tiết 2</th><th>Điểm</th><th>Thời gian</th><th>Exit Ticket</th></tr></thead><tbody>
+    ${list.map(s=>`<tr><td>${s.HoTen}</td><td>${s.Progress||0}%</td><td>${s.Session1Done?'✅':'—'}</td><td>${s.Session2Done?'✅':'—'}</td><td>${s.Score||0}</td><td>${Math.round((s.TotalActiveSeconds||0)/60)}p</td><td>${s.exitTicket?'✅':'—'}</td></tr>`).join('') || '<tr><td colspan="7">Chưa có dữ liệu.</td></tr>'}
+  </tbody></table>`;
+}
+function renderHardTable(){
+  const students = (teacherData && teacherData.students) || [];
+  const stats = {};
+  students.forEach(s=>{
+    Object.keys(s.responses||{}).forEach(actId=>{
+      if(!actId.startsWith('DET_') && !actId.startsWith('JUDGE_')) return;
+      stats[actId] = stats[actId] || {total:0, correct:0};
+      stats[actId].total++;
+      if(s.responses[actId].correct===true) stats[actId].correct++;
+    });
+  });
+  const rows = Object.keys(stats).map(k=>{
+    const pct = Math.round(100*stats[k].correct/stats[k].total);
+    return `<tr><td>${k}</td><td>${pct}%</td><td>${stats[k].total}</td></tr>`;
+  }).join('');
+  document.getElementById('hardTable').innerHTML = `<table><thead><tr><th>Hoạt động</th><th>% Đúng</th><th>Số lượt</th></tr></thead><tbody>${rows || '<tr><td colspan="3">Chưa có dữ liệu.</td></tr>'}</tbody></table>`;
+}
+function renderExitAnalytics(){
+  const students = (teacherData && teacherData.students) || [];
+  const withET = students.filter(s=>s.exitTicket);
+  const counts = [0,0,0,0,0];
+  withET.forEach(s=>{ const u = s.exitTicket.understanding; if(u>=1&&u<=5) counts[u-1]++; });
+  let html = `<div class="grid grid-3">${counts.map((c,i)=>statCard(c,'Mức '+(i+1))).join('')}</div>`;
+  html += `<h3 style="margin-top:16px;">Thắc mắc của học sinh</h3>`;
+  html += withET.filter(s=>s.exitTicket.question).map(s=>`<div class="case-box"><b>${s.HoTen}:</b> ${s.exitTicket.question}</div>`).join('') || '<p>Chưa có thắc mắc nào.</p>';
+  return html;
+}
+function viewMindmap(json){
+  const mm = JSON.parse(json);
+  const branches = mm;
+  let html = `<div class="mindmap-box">`;
+  ['neg','bad','do'].forEach(k=>{
+    html += `<p><b>${k==='neg'?'⚠ Tác động tiêu cực':k==='bad'?'⚖ Hành vi cần tránh':'✅ Em sẽ làm gì'}:</b> ${(branches[k]||[]).join(', ') || '(trống)'}</p>`;
+  });
+  html += `</div>`;
+  document.getElementById('mindmapViewer').innerHTML = html;
+}
+
+/* ---------------- SYNC ON EXIT ---------------- */
+window.addEventListener('beforeunload', ()=>{ if(state) saveLocal(); });
+setInterval(()=>{ if(!IS_DEMO) trySyncQueue(); }, 15000);
+</script>
+</body>
+</html>
